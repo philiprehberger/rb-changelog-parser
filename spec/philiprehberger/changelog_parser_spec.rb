@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tmpdir'
 
 RSpec.describe Philiprehberger::ChangelogParser do
   let(:sample_changelog) do
