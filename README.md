@@ -15,7 +15,7 @@ Parser for Keep a Changelog format with querying and write-back
 Add to your Gemfile:
 
 ```ruby
-gem 'philiprehberger-changelog_parser'
+gem "philiprehberger-changelog_parser"
 ```
 
 Or install directly:
