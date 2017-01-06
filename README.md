@@ -27,7 +27,7 @@ gem install philiprehberger-changelog_parser
 ## Usage
 
 ```ruby
-require 'philiprehberger/changelog_parser'
+require "philiprehberger/changelog_parser"
 
 changelog = Philiprehberger::ChangelogParser.parse('CHANGELOG.md')
 changelog.versions   # => ['Unreleased', '0.2.0', '0.1.0']
