@@ -100,11 +100,11 @@ module Philiprehberger
         lines << @preamble unless @preamble.empty?
 
         @entries.each do |entry|
-          if entry.date
-            lines << "## [#{entry.version}] - #{entry.date}"
-          else
-            lines << "## [#{entry.version}]"
-          end
+          lines << if entry.date
+                     "## [#{entry.version}] - #{entry.date}"
+                   else
+                     "## [#{entry.version}]"
+                   end
           lines << ''
 
           entry.categories.each do |category, items|
