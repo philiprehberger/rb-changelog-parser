@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = 'Parser for Keep a Changelog format with querying and write-back'
   spec.description = 'Parse Keep a Changelog formatted markdown files with version querying, category management, ' \
-                       'release creation, and markdown write-back support.'
+                     'release creation, and markdown write-back support.'
   spec.homepage = 'https://philiprehberger.com/open-source-packages/ruby/philiprehberger-changelog_parser'
   spec.license = 'MIT'
 
