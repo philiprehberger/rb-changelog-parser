@@ -378,6 +378,109 @@ RSpec.describe Philiprehberger::ChangelogParser do
     end
   end
 
+  describe '#diff' do
+    let(:changelog_text) do
+      <<~MD
+        # Changelog
+
+        ## [Unreleased]
+
+        ## [0.3.0] - 2026-04-01
+
+        ### Added
+        - Feature C
+
+        ## [0.2.0] - 2026-03-15
+
+        ### Added
+        - Feature B
+
+        ### Fixed
+        - Bug fix B
+
+        ## [0.1.0] - 2026-03-01
+
+        ### Added
+        - Feature A
+      MD
+    end
+    let(:changelog) { Philiprehberger::ChangelogParser.parse(changelog_text) }
+
+    it 'returns entries between two versions' do
+      result = changelog.diff('0.1.0', '0.3.0')
+      expect(result['Added']).to contain_exactly('Feature B', 'Feature C')
+    end
+
+    it 'includes the to_version entries' do
+      result = changelog.diff('0.1.0', '0.2.0')
+      expect(result['Added']).to eq(['Feature B'])
+      expect(result['Fixed']).to eq(['Bug fix B'])
+    end
+
+    it 'excludes the from_version entries' do
+      result = changelog.diff('0.1.0', '0.2.0')
+      expect(result['Added']).not_to include('Feature A')
+    end
+
+    it 'raises for unknown from_version' do
+      expect { changelog.diff('9.9.9', '0.2.0') }.to raise_error(Philiprehberger::ChangelogParser::Error)
+    end
+
+    it 'raises for unknown to_version' do
+      expect { changelog.diff('0.1.0', '9.9.9') }.to raise_error(Philiprehberger::ChangelogParser::Error)
+    end
+
+    it 'returns empty hash for same version' do
+      result = changelog.diff('0.2.0', '0.2.0')
+      expect(result).to eq({})
+    end
+  end
+
+  describe '#since' do
+    let(:changelog_text) do
+      <<~MD
+        # Changelog
+
+        ## [Unreleased]
+
+        ## [0.3.0] - 2026-04-01
+
+        ### Added
+        - Feature C
+
+        ## [0.2.0] - 2026-03-15
+
+        ### Added
+        - Feature B
+
+        ## [0.1.0] - 2026-03-01
+
+        ### Added
+        - Feature A
+      MD
+    end
+    let(:changelog) { Philiprehberger::ChangelogParser.parse(changelog_text) }
+
+    it 'returns all entries since a version' do
+      result = changelog.since('0.1.0')
+      expect(result['Added']).to contain_exactly('Feature C', 'Feature B')
+    end
+
+    it 'excludes Unreleased entries' do
+      result = changelog.since('0.1.0')
+      expect(result.values.flatten).not_to be_empty
+    end
+
+    it 'returns empty when since latest' do
+      result = changelog.since('0.3.0')
+      expect(result).to eq({})
+    end
+
+    it 'raises for unknown version' do
+      expect { changelog.since('9.9.9') }.to raise_error(Philiprehberger::ChangelogParser::Error)
+    end
+  end
+
   describe Philiprehberger::ChangelogParser::VersionEntry do
     describe '#add_entry' do
       it 'creates a new category array if needed' do
