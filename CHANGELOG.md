@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-09
+
+### Added
+- `Changelog#search(query)` for keyword and regex search across all entries
+- `Changelog#validate` to detect duplicate versions, dates out of order, and empty released versions
+- `VersionEntry#empty?` convenience method
+
 ## [0.3.0] - 2026-04-04
 
 ### Added

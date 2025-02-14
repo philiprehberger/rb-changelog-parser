@@ -112,6 +112,51 @@ module Philiprehberger
         merge_categories(range)
       end
 
+      # Search all entries for a keyword or pattern.
+      #
+      # @param query [String, Regexp] the search term
+      # @return [Array<Hash>] matches with :version, :category, and :entry keys
+      def search(query)
+        pattern = query.is_a?(Regexp) ? query : /#{Regexp.escape(query)}/i
+        matches = []
+
+        @entries.each do |entry|
+          entry.categories.each do |category, items|
+            items.each do |item|
+              matches << { version: entry.version, category: category, entry: item } if pattern.match?(item)
+            end
+          end
+        end
+
+        matches
+      end
+
+      # Validate the changelog for common issues.
+      #
+      # @return [Array<String>] warning messages (empty if valid)
+      def validate
+        warnings = []
+        released = @entries.reject { |e| e.version == 'Unreleased' }
+
+        # Check for duplicate versions
+        version_names = released.map(&:version)
+        duplicates = version_names.select { |v| version_names.count(v) > 1 }.uniq
+        warnings.concat(duplicates.map { |v| "duplicate version: #{v}" })
+
+        # Check dates are in descending order
+        dates = released.filter_map(&:date)
+        dates.each_cons(2) do |newer, older|
+          warnings << "date out of order: #{newer} before #{older}" if newer < older
+        end
+
+        # Check for empty released versions
+        released.each do |entry|
+          warnings << "empty version: #{entry.version}" if entry.empty?
+        end
+
+        warnings
+      end
+
       # Write the changelog to a file
       #
       # @param path [String] the file path

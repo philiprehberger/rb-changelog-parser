@@ -22,6 +22,13 @@ module Philiprehberger
       # @return [Hash<String, Array<String>>] category to entries mapping
       attr_reader :categories
 
+      # Check if this version has no entries
+      #
+      # @return [Boolean] true if no entries exist in any category
+      def empty?
+        @categories.empty? || @categories.values.all?(&:empty?)
+      end
+
       # Add an entry under a category
       #
       # @param category [String] the category name
