@@ -106,6 +106,29 @@ warnings = changelog.validate
 # => ["empty version: 0.2.0", "date out of order: 2026-03-01 before 2026-03-15"]
 ```
 
+### Filtering by Category
+
+```ruby
+added = changelog.filter(category: 'Added')
+added.each do |match|
+  puts "#{match[:version]} (#{match[:date]}): #{match[:entry]}"
+end
+```
+
+### Removing Entries
+
+```ruby
+changelog.remove('Unreleased', 'Added', 'Obsolete feature')
+```
+
+### JSON Round-Trip
+
+```ruby
+json = changelog.to_json
+restored = Philiprehberger::ChangelogParser.from_json(json)
+restored.versions  # => same as original
+```
+
 ### Parsing Strings
 
 ```ruby
@@ -128,6 +151,7 @@ MD
 | Method | Description |
 |--------|-------------|
 | `.parse(path_or_string)` | Parse a changelog from a file path or string |
+| `.from_json(json_string)` | Deserialize a changelog from a JSON string |
 
 ### `Changelog`
 
@@ -138,10 +162,12 @@ MD
 | `#unreleased` | Return the Unreleased entry |
 | `#latest` | Return the latest released version |
 | `#add(version, category, entry)` | Add an entry to a version |
+| `#remove(version, category, entry)` | Remove an entry from a version |
 | `#release(version, date:)` | Create a release from Unreleased |
 | `#write(path)` | Write changelog to a file |
 | `#diff(from, to)` | Returns merged entries between two versions |
 | `#since(version)` | Returns merged entries newer than a version |
+| `#filter(category:)` | Return all entries from a specific category across versions |
 | `#search(query)` | Search entries by keyword or regex |
 | `#validate` | Check for common issues (duplicates, date order, empty versions) |
 | `#to_json` | Serialize as JSON string |
