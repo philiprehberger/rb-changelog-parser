@@ -3,6 +3,7 @@
 [![Tests](https://github.com/philiprehberger/rb-changelog-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-changelog-parser/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-changelog_parser.svg)](https://rubygems.org/gems/philiprehberger-changelog_parser)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-changelog-parser)](LICENSE)
+[![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ec6cb9)](https://github.com/sponsors/philiprehberger)
 
 Parser for Keep a Changelog format with querying and write-back
 
