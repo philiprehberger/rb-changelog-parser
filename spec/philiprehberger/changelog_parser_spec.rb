@@ -364,7 +364,7 @@ RSpec.describe Philiprehberger::ChangelogParser do
         expect(content).to include('# Changelog')
         expect(content).to include('## [0.2.0] - 2026-03-20')
       ensure
-        File.delete(tmpfile) if File.exist?(tmpfile)
+        FileUtils.rm_f(tmpfile)
       end
 
       it 'writes a file that can be re-parsed' do
@@ -373,7 +373,7 @@ RSpec.describe Philiprehberger::ChangelogParser do
         reparsed = Philiprehberger::ChangelogParser.parse(tmpfile)
         expect(reparsed.versions).to eq(['Unreleased', '0.2.0', '0.1.0'])
       ensure
-        File.delete(tmpfile) if File.exist?(tmpfile)
+        FileUtils.rm_f(tmpfile)
       end
     end
   end
@@ -389,7 +389,7 @@ RSpec.describe Philiprehberger::ChangelogParser do
       it 'appends to existing category' do
         entry = described_class.new(version: '1.0.0', categories: { 'Added' => ['First'] })
         entry.add_entry('Added', 'Second')
-        expect(entry.categories['Added']).to eq(['First', 'Second'])
+        expect(entry.categories['Added']).to eq(%w[First Second])
       end
     end
   end

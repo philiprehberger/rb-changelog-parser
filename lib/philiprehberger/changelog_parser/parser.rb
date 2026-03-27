@@ -49,9 +49,7 @@ module Philiprehberger
           when CATEGORY_HEADER
             current_category = Regexp.last_match(1) if current_entry
           when LIST_ITEM
-            if current_entry && current_category
-              current_entry.add_entry(current_category, Regexp.last_match(1))
-            end
+            current_entry.add_entry(current_category, Regexp.last_match(1)) if current_entry && current_category
           else
             preamble_lines << line if in_preamble && !line.match?(TITLE_HEADER)
           end
