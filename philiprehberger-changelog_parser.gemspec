@@ -11,15 +11,15 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Parser for Keep a Changelog format with querying and write-back'
   spec.description   = 'Parse Keep a Changelog formatted markdown files with version querying, category management, ' \
                        'release creation, and markdown write-back support.'
-  spec.homepage      = 'https://github.com/philiprehberger/rb-changelog-parser'
+  spec.homepage      = 'https://philiprehberger.com/open-source-packages/ruby/philiprehberger-changelog_parser'
   spec.license       = 'MIT'
 
   spec.required_ruby_version = '>= 3.1.0'
 
   spec.metadata['homepage_uri']          = spec.homepage
-  spec.metadata['source_code_uri']       = spec.homepage
-  spec.metadata['changelog_uri']         = "#{spec.homepage}/blob/main/CHANGELOG.md"
-  spec.metadata['bug_tracker_uri']       = "#{spec.homepage}/issues"
+  spec.metadata['source_code_uri']       = 'https://github.com/philiprehberger/rb-changelog-parser'
+  spec.metadata['changelog_uri']         = 'https://github.com/philiprehberger/rb-changelog-parser/blob/main/CHANGELOG.md'
+  spec.metadata['bug_tracker_uri']       = 'https://github.com/philiprehberger/rb-changelog-parser/issues'
   spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.files = Dir['lib/**/*.rb', 'LICENSE', 'README.md', 'CHANGELOG.md']
