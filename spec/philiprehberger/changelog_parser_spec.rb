@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'json'
 require 'tmpdir'
 
 RSpec.describe Philiprehberger::ChangelogParser do
@@ -353,6 +354,40 @@ RSpec.describe Philiprehberger::ChangelogParser do
         reparsed = Philiprehberger::ChangelogParser.parse(markdown1)
         expect(reparsed.versions).to eq(changelog.versions)
         expect(reparsed.version('0.2.0').categories['Added']).to eq(['New feature A', 'New feature B'])
+      end
+    end
+
+    describe '#to_json' do
+      it 'serializes the changelog as a JSON string' do
+        json = changelog.to_json
+        parsed = JSON.parse(json)
+        expect(parsed['title']).to eq('Changelog')
+        expect(parsed['versions'].length).to eq(3)
+      end
+
+      it 'includes version, date, and categories for each entry' do
+        parsed = JSON.parse(changelog.to_json)
+        entry = parsed['versions'].find { |v| v['version'] == '0.2.0' }
+        expect(entry['date']).to eq('2026-03-20')
+        expect(entry['categories']['Added']).to eq(['New feature A', 'New feature B'])
+        expect(entry['categories']['Fixed']).to eq(['Bug fix C'])
+      end
+
+      it 'sets date to nil for Unreleased' do
+        parsed = JSON.parse(changelog.to_json)
+        unreleased = parsed['versions'].find { |v| v['version'] == 'Unreleased' }
+        expect(unreleased['date']).to be_nil
+      end
+
+      it 'returns empty categories for versions with no entries' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [0.1.0] - 2026-01-01
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        parsed = JSON.parse(cl.to_json)
+        expect(parsed['versions'].first['categories']).to eq({})
       end
     end
 

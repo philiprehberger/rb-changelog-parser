@@ -120,6 +120,24 @@ module Philiprehberger
         File.write(path, to_markdown)
       end
 
+      # Serialize the changelog as a JSON string
+      #
+      # @param args [Array] arguments forwarded to Hash#to_json
+      # @return [String] the JSON string
+      def to_json(*args)
+        require 'json'
+        {
+          title: @title,
+          versions: @entries.map do |entry|
+            {
+              version: entry.version,
+              date: entry.date,
+              categories: entry.categories
+            }
+          end
+        }.to_json(*args)
+      end
+
       # Render the changelog as markdown
       #
       # @return [String] the markdown string
