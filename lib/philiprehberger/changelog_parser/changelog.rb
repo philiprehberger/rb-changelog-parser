@@ -82,6 +82,36 @@ module Philiprehberger
         new_entry
       end
 
+      # Returns combined entries for all versions between from_version (exclusive) and to_version (inclusive).
+      #
+      # @param from_version [String] starting version (exclusive)
+      # @param to_version [String] ending version (inclusive)
+      # @return [Hash<String, Array<String>>] merged categories with entries
+      # @raise [Error] if either version is not found
+      def diff(from_version, to_version)
+        from_idx = @entries.index { |e| e.version == from_version }
+        to_idx = @entries.index { |e| e.version == to_version }
+        raise Philiprehberger::ChangelogParser::Error, "version not found: #{from_version}" unless from_idx
+        raise Philiprehberger::ChangelogParser::Error, "version not found: #{to_version}" unless to_idx
+
+        low, high = [from_idx, to_idx].sort
+        range = @entries[low..high].reject { |e| e.version == from_version }
+        merge_categories(range)
+      end
+
+      # Returns combined entries for all versions newer than the given version.
+      #
+      # @param version_string [String] version to start from (exclusive)
+      # @return [Hash<String, Array<String>>] merged categories with entries
+      # @raise [Error] if version is not found
+      def since(version_string)
+        idx = @entries.index { |e| e.version == version_string }
+        raise Philiprehberger::ChangelogParser::Error, "version not found: #{version_string}" unless idx
+
+        range = @entries[0...idx].reject { |e| e.version == 'Unreleased' }
+        merge_categories(range)
+      end
+
       # Write the changelog to a file
       #
       # @param path [String] the file path
@@ -116,6 +146,19 @@ module Philiprehberger
         end
 
         lines.join("\n")
+      end
+
+      private
+
+      def merge_categories(entries)
+        result = {}
+        entries.each do |entry|
+          entry.categories.each do |category, items|
+            result[category] ||= []
+            result[category].concat(items)
+          end
+        end
+        result
       end
     end
   end

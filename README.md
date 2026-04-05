@@ -64,6 +64,22 @@ changelog.write('CHANGELOG.md')
 markdown = changelog.to_markdown
 ```
 
+### Comparing Versions
+
+```ruby
+require "philiprehberger/changelog_parser"
+
+changelog = Philiprehberger::ChangelogParser.parse("CHANGELOG.md")
+
+# Get all changes between two versions
+changes = changelog.diff("0.1.0", "0.3.0")
+changes["Added"]  # => ["Feature B", "Feature C"]
+
+# Get all changes since a version
+recent = changelog.since("0.1.0")
+recent["Fixed"]   # => ["Bug fix B"]
+```
+
 ### Parsing Strings
 
 ```ruby
@@ -98,6 +114,8 @@ MD
 | `#add(version, category, entry)` | Add an entry to a version |
 | `#release(version, date:)` | Create a release from Unreleased |
 | `#write(path)` | Write changelog to a file |
+| `#diff(from, to)` | Returns merged entries between two versions |
+| `#since(version)` | Returns merged entries newer than a version |
 | `#to_markdown` | Render as markdown string |
 
 ### `VersionEntry`
