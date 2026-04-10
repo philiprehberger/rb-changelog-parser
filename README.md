@@ -87,6 +87,25 @@ recent = changelog.since("0.1.0")
 recent["Fixed"]   # => ["Bug fix B"]
 ```
 
+### Searching Entries
+
+```ruby
+results = changelog.search("authentication")
+results.each do |match|
+  puts "#{match[:version]} [#{match[:category]}] #{match[:entry]}"
+end
+
+# Also accepts regex
+changelog.search(/\bbug\b/i)
+```
+
+### Validation
+
+```ruby
+warnings = changelog.validate
+# => ["empty version: 0.2.0", "date out of order: 2026-03-01 before 2026-03-15"]
+```
+
 ### Parsing Strings
 
 ```ruby
@@ -123,6 +142,8 @@ MD
 | `#write(path)` | Write changelog to a file |
 | `#diff(from, to)` | Returns merged entries between two versions |
 | `#since(version)` | Returns merged entries newer than a version |
+| `#search(query)` | Search entries by keyword or regex |
+| `#validate` | Check for common issues (duplicates, date order, empty versions) |
 | `#to_json` | Serialize as JSON string |
 | `#to_markdown` | Render as markdown string |
 
@@ -133,6 +154,7 @@ MD
 | `#version` | The version string |
 | `#date` | The release date |
 | `#categories` | Hash of category to entries |
+| `#empty?` | True if version has no entries |
 
 ## Development
 

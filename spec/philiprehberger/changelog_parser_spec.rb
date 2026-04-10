@@ -516,7 +516,146 @@ RSpec.describe Philiprehberger::ChangelogParser do
     end
   end
 
+  describe '#search' do
+    let(:changelog_text) do
+      <<~MD
+        # Changelog
+
+        ## [Unreleased]
+
+        ### Added
+        - Search API endpoint
+
+        ## [0.2.0] - 2026-03-15
+
+        ### Added
+        - User authentication
+        - Search widget
+
+        ### Fixed
+        - Login redirect bug
+
+        ## [0.1.0] - 2026-03-01
+
+        ### Added
+        - Initial release
+      MD
+    end
+    let(:changelog) { Philiprehberger::ChangelogParser.parse(changelog_text) }
+
+    it 'finds entries matching a keyword' do
+      results = changelog.search('search')
+      expect(results.length).to eq(2)
+      expect(results.map { |r| r[:entry] }).to contain_exactly('Search API endpoint', 'Search widget')
+    end
+
+    it 'is case-insensitive by default' do
+      results = changelog.search('LOGIN')
+      expect(results.length).to eq(1)
+      expect(results.first[:entry]).to eq('Login redirect bug')
+    end
+
+    it 'returns version and category context' do
+      results = changelog.search('authentication')
+      expect(results.first[:version]).to eq('0.2.0')
+      expect(results.first[:category]).to eq('Added')
+    end
+
+    it 'accepts a regex pattern' do
+      results = changelog.search(/\bredirect\b/)
+      expect(results.length).to eq(1)
+    end
+
+    it 'returns empty array for no matches' do
+      expect(changelog.search('nonexistent')).to be_empty
+    end
+  end
+
+  describe '#validate' do
+    it 'returns empty array for a valid changelog' do
+      changelog = Philiprehberger::ChangelogParser.parse(<<~MD)
+        # Changelog
+
+        ## [Unreleased]
+
+        ## [0.2.0] - 2026-03-15
+
+        ### Added
+        - Feature
+
+        ## [0.1.0] - 2026-03-01
+
+        ### Added
+        - Initial release
+      MD
+      expect(changelog.validate).to be_empty
+    end
+
+    it 'detects duplicate versions' do
+      changelog = Philiprehberger::ChangelogParser.parse(<<~MD)
+        # Changelog
+
+        ## [0.1.0] - 2026-03-15
+
+        ### Added
+        - First
+
+        ## [0.1.0] - 2026-03-01
+
+        ### Added
+        - Second
+      MD
+      warnings = changelog.validate
+      expect(warnings).to include('duplicate version: 0.1.0')
+    end
+
+    it 'detects dates out of order' do
+      changelog = Philiprehberger::ChangelogParser.parse(<<~MD)
+        # Changelog
+
+        ## [0.2.0] - 2026-03-01
+
+        ### Added
+        - Feature
+
+        ## [0.1.0] - 2026-03-15
+
+        ### Added
+        - Initial release
+      MD
+      warnings = changelog.validate
+      expect(warnings).to include('date out of order: 2026-03-01 before 2026-03-15')
+    end
+
+    it 'detects empty released versions' do
+      changelog = Philiprehberger::ChangelogParser.parse(<<~MD)
+        # Changelog
+
+        ## [0.1.0] - 2026-03-01
+      MD
+      warnings = changelog.validate
+      expect(warnings).to include('empty version: 0.1.0')
+    end
+  end
+
   describe Philiprehberger::ChangelogParser::VersionEntry do
+    describe '#empty?' do
+      it 'returns true for a version with no categories' do
+        entry = described_class.new(version: '1.0.0')
+        expect(entry.empty?).to be true
+      end
+
+      it 'returns false for a version with entries' do
+        entry = described_class.new(version: '1.0.0', categories: { 'Added' => ['Feature'] })
+        expect(entry.empty?).to be false
+      end
+
+      it 'returns true for a version with empty category arrays' do
+        entry = described_class.new(version: '1.0.0', categories: { 'Added' => [] })
+        expect(entry.empty?).to be true
+      end
+    end
+
     describe '#add_entry' do
       it 'creates a new category array if needed' do
         entry = described_class.new(version: '1.0.0')
