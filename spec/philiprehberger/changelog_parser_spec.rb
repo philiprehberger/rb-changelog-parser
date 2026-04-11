@@ -571,6 +571,120 @@ RSpec.describe Philiprehberger::ChangelogParser do
     end
   end
 
+  describe '#filter' do
+    let(:changelog_text) do
+      <<~MD
+        # Changelog
+
+        ## [Unreleased]
+
+        ### Added
+        - Pending feature
+
+        ## [0.3.0] - 2026-04-01
+
+        ### Added
+        - Feature C
+
+        ### Fixed
+        - Bug fix C
+
+        ## [0.2.0] - 2026-03-15
+
+        ### Added
+        - Feature B
+
+        ## [0.1.0] - 2026-03-01
+
+        ### Added
+        - Feature A
+
+        ### Fixed
+        - Bug fix A
+      MD
+    end
+    let(:changelog) { Philiprehberger::ChangelogParser.parse(changelog_text) }
+
+    it 'returns all entries for a given category' do
+      results = changelog.filter(category: 'Added')
+      expect(results.length).to eq(4)
+      expect(results.map { |r| r[:entry] }).to eq(['Pending feature', 'Feature C', 'Feature B', 'Feature A'])
+    end
+
+    it 'includes version and date context' do
+      results = changelog.filter(category: 'Fixed')
+      expect(results.first[:version]).to eq('0.3.0')
+      expect(results.first[:date]).to eq('2026-04-01')
+    end
+
+    it 'returns empty array for non-existent category' do
+      expect(changelog.filter(category: 'Security')).to be_empty
+    end
+  end
+
+  describe '#remove' do
+    let(:changelog) { Philiprehberger::ChangelogParser.parse(sample_changelog) }
+
+    it 'removes an entry from a version' do
+      changelog.remove('0.2.0', 'Added', 'New feature A')
+      expect(changelog.version('0.2.0').categories['Added']).to eq(['New feature B'])
+    end
+
+    it 'cleans up empty category arrays' do
+      changelog.remove('0.2.0', 'Fixed', 'Bug fix C')
+      expect(changelog.version('0.2.0').categories).not_to have_key('Fixed')
+    end
+
+    it 'raises for missing version' do
+      expect { changelog.remove('9.9.9', 'Added', 'test') }.to raise_error(Philiprehberger::ChangelogParser::Error)
+    end
+
+    it 'raises for missing entry' do
+      expect { changelog.remove('0.2.0', 'Added', 'nonexistent') }.to raise_error(
+        Philiprehberger::ChangelogParser::Error, 'entry not found in 0.2.0 [Added]'
+      )
+    end
+
+    it 'raises for missing category' do
+      expect { changelog.remove('0.2.0', 'Security', 'test') }.to raise_error(
+        Philiprehberger::ChangelogParser::Error
+      )
+    end
+  end
+
+  describe '.from_json' do
+    let(:changelog) { Philiprehberger::ChangelogParser.parse(sample_changelog) }
+
+    it 'round-trips through to_json and from_json' do
+      json = changelog.to_json
+      restored = Philiprehberger::ChangelogParser.from_json(json)
+      expect(restored.versions).to eq(changelog.versions)
+      expect(restored.title).to eq('Changelog')
+    end
+
+    it 'preserves version entries and categories' do
+      json = changelog.to_json
+      restored = Philiprehberger::ChangelogParser.from_json(json)
+      entry = restored.version('0.2.0')
+      expect(entry.date).to eq('2026-03-20')
+      expect(entry.categories['Added']).to eq(['New feature A', 'New feature B'])
+      expect(entry.categories['Fixed']).to eq(['Bug fix C'])
+    end
+
+    it 'preserves nil date for Unreleased' do
+      json = changelog.to_json
+      restored = Philiprehberger::ChangelogParser.from_json(json)
+      expect(restored.unreleased.date).to be_nil
+    end
+
+    it 'produces a changelog that can be serialized again' do
+      json1 = changelog.to_json
+      restored = Philiprehberger::ChangelogParser.from_json(json1)
+      json2 = restored.to_json
+      expect(JSON.parse(json2)).to eq(JSON.parse(json1))
+    end
+  end
+
   describe '#validate' do
     it 'returns empty array for a valid changelog' do
       changelog = Philiprehberger::ChangelogParser.parse(<<~MD)

@@ -14,5 +14,13 @@ module Philiprehberger
     def self.parse(input)
       Parser.call(input)
     end
+
+    # Deserialize a changelog from a JSON string
+    #
+    # @param json_string [String] JSON produced by Changelog#to_json
+    # @return [Changelog] the deserialized changelog
+    def self.from_json(json_string)
+      Changelog.from_json(json_string)
+    end
   end
 end

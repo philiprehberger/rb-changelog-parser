@@ -165,6 +165,56 @@ module Philiprehberger
         File.write(path, to_markdown)
       end
 
+      # Return all entries from a specific category across all versions.
+      #
+      # @param category [String] the category to filter by (e.g., 'Added', 'Fixed')
+      # @return [Array<Hash>] matches with :version, :date, and :entry keys
+      def filter(category:)
+        results = []
+
+        @entries.each do |entry|
+          next unless entry.categories.key?(category)
+
+          entry.categories[category].each do |item|
+            results << { version: entry.version, date: entry.date, entry: item }
+          end
+        end
+
+        results
+      end
+
+      # Remove an entry from a version under a category
+      #
+      # @param version_string [String] the version to remove from
+      # @param category [String] the category
+      # @param entry [String] the entry text to remove
+      # @return [void]
+      # @raise [Error] if the version or entry is not found
+      def remove(version_string, category, entry)
+        ver = version(version_string)
+        raise Error, "version #{version_string} not found" unless ver
+        raise Error, "entry not found in #{version_string} [#{category}]" unless ver.categories[category]&.include?(entry)
+
+        ver.categories[category].delete(entry)
+        ver.categories.delete(category) if ver.categories[category].empty?
+      end
+
+      # Deserialize a changelog from a JSON string
+      #
+      # @param json_string [String] JSON produced by #to_json
+      # @return [Changelog] the deserialized changelog
+      def self.from_json(json_string)
+        require 'json'
+        data = JSON.parse(json_string)
+
+        entries = data['versions'].map do |v|
+          categories = v['categories'].transform_values(&:dup)
+          VersionEntry.new(version: v['version'], date: v['date'], categories: categories)
+        end
+
+        new(title: data['title'], preamble: '', entries: entries)
+      end
+
       # Serialize the changelog as a JSON string
       #
       # @param args [Array] arguments forwarded to Hash#to_json

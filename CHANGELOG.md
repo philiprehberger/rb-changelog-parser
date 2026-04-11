@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-10
+
+### Added
+- `Changelog.from_json(json_string)` for JSON deserialization and round-trip support
+- `Changelog#filter(category:)` to query entries by category across all versions
+- `Changelog#remove(version, category, entry)` to remove entries from a version
+
 ## [0.4.0] - 2026-04-09
 
 ### Added
