@@ -159,6 +159,8 @@ MD
 |--------|-------------|
 | `#versions` | Return all version strings |
 | `#version(v)` | Find a specific version entry |
+| `#categories` | Sorted unique category names across all entries |
+| `#entry_count` | Total count of line items across all versions |
 | `#unreleased` | Return the Unreleased entry |
 | `#latest` | Return the latest released version |
 | `#add(version, category, entry)` | Add an entry to a version |

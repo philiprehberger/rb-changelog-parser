@@ -34,6 +34,20 @@ module Philiprehberger
         @entries.find { |e| e.version == version_string }
       end
 
+      # Return sorted unique category names present across all version entries
+      #
+      # @return [Array<String>] sorted unique category names
+      def categories
+        @entries.flat_map { |e| e.categories.keys }.uniq.sort
+      end
+
+      # Return the total count of line items across all versions and categories
+      #
+      # @return [Integer] total entry count
+      def entry_count
+        @entries.sum { |e| e.categories.values.sum(&:size) }
+      end
+
       # Return the unreleased entry
       #
       # @return [VersionEntry, nil] the unreleased entry or nil

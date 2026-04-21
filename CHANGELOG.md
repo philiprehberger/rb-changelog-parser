@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-04-22
+
+### Added
+- `Changelog#categories` — return a sorted array of unique category names across all version entries.
+- `Changelog#entry_count` — return the total number of line items across all versions and categories.
+
 ## [0.5.0] - 2026-04-10
 
 ### Added
