@@ -237,6 +237,84 @@ RSpec.describe Philiprehberger::ChangelogParser do
       end
     end
 
+    describe '#categories' do
+      it 'returns sorted unique category names across all versions' do
+        expect(changelog.categories).to eq(%w[Added Fixed])
+      end
+
+      it 'returns an empty array when there are no categories' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [0.1.0] - 2026-01-01
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.categories).to eq([])
+      end
+
+      it 'dedupes category names across multiple versions' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [0.2.0] - 2026-02-01
+
+          ### Added
+          - Feature B
+
+          ### Security
+          - Patched CVE
+
+          ## [0.1.0] - 2026-01-01
+
+          ### Added
+          - Feature A
+
+          ### Changed
+          - Behavior tweak
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.categories).to eq(%w[Added Changed Security])
+      end
+    end
+
+    describe '#entry_count' do
+      it 'counts all entries across all versions and categories' do
+        expect(changelog.entry_count).to eq(4)
+      end
+
+      it 'returns 0 for a changelog with no entries' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [0.1.0] - 2026-01-01
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.entry_count).to eq(0)
+      end
+
+      it 'sums entries across multiple versions and categories' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [0.2.0] - 2026-02-01
+
+          ### Added
+          - Feature B1
+          - Feature B2
+
+          ### Fixed
+          - Bug B
+
+          ## [0.1.0] - 2026-01-01
+
+          ### Added
+          - Feature A
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.entry_count).to eq(4)
+      end
+    end
+
     describe '#unreleased' do
       it 'returns the Unreleased entry' do
         entry = changelog.unreleased
