@@ -315,6 +315,51 @@ RSpec.describe Philiprehberger::ChangelogParser do
       end
     end
 
+    describe '#empty?' do
+      it 'returns false when there are released entries' do
+        expect(changelog.empty?).to be false
+      end
+
+      it 'returns true for a changelog with only an empty Unreleased section' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [Unreleased]
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.empty?).to be true
+      end
+
+      it 'returns true for a changelog with a header but no version sections' do
+        content = "# Changelog\n\nAll notable changes here.\n"
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.empty?).to be true
+      end
+
+      it 'returns false when only Unreleased has entries' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [Unreleased]
+
+          ### Added
+          - Pending feature
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.empty?).to be false
+      end
+
+      it 'returns true for a released version with no line items' do
+        content = <<~MARKDOWN
+          # Changelog
+
+          ## [0.1.0] - 2026-01-01
+        MARKDOWN
+        cl = Philiprehberger::ChangelogParser.parse(content)
+        expect(cl.empty?).to be true
+      end
+    end
+
     describe '#unreleased' do
       it 'returns the Unreleased entry' do
         entry = changelog.unreleased

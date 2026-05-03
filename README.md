@@ -40,6 +40,8 @@ changelog.latest     # => VersionEntry for 0.2.0
 entry = changelog.version('0.2.0')
 entry.date                  # => '2026-03-20'
 entry.categories['Added']   # => ['New feature A', 'New feature B']
+
+changelog.empty?            # => false (true for templates and freshly-initialized changelogs)
 ```
 
 ### Adding Entries
@@ -161,6 +163,7 @@ MD
 | `#version(v)` | Find a specific version entry |
 | `#categories` | Sorted unique category names across all entries |
 | `#entry_count` | Total count of line items across all versions |
+| `#empty?` | True when the changelog has no line-item entries |
 | `#unreleased` | Return the Unreleased entry |
 | `#latest` | Return the latest released version |
 | `#add(version, category, entry)` | Add an entry to a version |

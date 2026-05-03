@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-05-02
+
+### Added
+- `Changelog#empty?` — true when the changelog has no line-item entries (released or unreleased), useful for templates and freshly-initialized changelogs
+
 ## [0.6.0] - 2026-04-22
 
 ### Added

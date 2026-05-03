@@ -48,6 +48,13 @@ module Philiprehberger
         @entries.sum { |e| e.categories.values.sum(&:size) }
       end
 
+      # Whether the changelog has no line-item entries (released or unreleased)
+      #
+      # @return [Boolean]
+      def empty?
+        entry_count.zero?
+      end
+
       # Return the unreleased entry
       #
       # @return [VersionEntry, nil] the unreleased entry or nil
