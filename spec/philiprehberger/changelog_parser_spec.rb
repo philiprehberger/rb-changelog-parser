@@ -639,6 +639,58 @@ RSpec.describe Philiprehberger::ChangelogParser do
     end
   end
 
+  describe '#entries_since' do
+    let(:changelog_text) do
+      <<~MD
+        # Changelog
+
+        ## [Unreleased]
+
+        ### Added
+        - Pending feature
+
+        ## [0.3.0] - 2026-04-01
+
+        ### Added
+        - Feature C
+
+        ## [0.2.0] - 2026-03-15
+
+        ### Added
+        - Feature B
+
+        ## [0.1.0] - 2026-03-01
+
+        ### Added
+        - Feature A
+      MD
+    end
+    let(:changelog) { Philiprehberger::ChangelogParser.parse(changelog_text) }
+
+    it 'returns released entries newer than the given version, newest first' do
+      result = changelog.entries_since('0.1.0')
+      expect(result.map(&:version)).to eq(%w[0.3.0 0.2.0])
+    end
+
+    it 'excludes Unreleased by default' do
+      result = changelog.entries_since('0.2.0')
+      expect(result.map(&:version)).to eq(['0.3.0'])
+    end
+
+    it 'includes Unreleased when include_unreleased: true' do
+      result = changelog.entries_since('0.2.0', include_unreleased: true)
+      expect(result.map(&:version)).to eq(['Unreleased', '0.3.0'])
+    end
+
+    it 'returns an empty array when no newer versions exist' do
+      expect(changelog.entries_since('0.3.0')).to eq([])
+    end
+
+    it 'raises for an unknown version' do
+      expect { changelog.entries_since('9.9.9') }.to raise_error(Philiprehberger::ChangelogParser::Error)
+    end
+  end
+
   describe '#search' do
     let(:changelog_text) do
       <<~MD

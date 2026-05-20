@@ -4,6 +4,8 @@
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-changelog_parser.svg)](https://rubygems.org/gems/philiprehberger-changelog_parser)
 [![Last updated](https://img.shields.io/github/last-commit/philiprehberger/rb-changelog-parser)](https://github.com/philiprehberger/rb-changelog-parser/commits/main)
 
+![philiprehberger-changelog_parser](https://raw.githubusercontent.com/philiprehberger/rb-changelog-parser/main/package-card.webp)
+
 Parser for Keep a Changelog format with querying and write-back
 
 ## Requirements
@@ -84,9 +86,13 @@ changelog = Philiprehberger::ChangelogParser.parse("CHANGELOG.md")
 changes = changelog.diff("0.1.0", "0.3.0")
 changes["Added"]  # => ["Feature B", "Feature C"]
 
-# Get all changes since a version
+# Get all changes since a version (merged categories)
 recent = changelog.since("0.1.0")
 recent["Fixed"]   # => ["Bug fix B"]
+
+# Get per-version entries newer than a version (newest first)
+entries = changelog.entries_since("0.1.0")
+entries.map(&:version)  # => ["0.3.0", "0.2.0"]
 ```
 
 ### Searching Entries
@@ -172,6 +178,7 @@ MD
 | `#write(path)` | Write changelog to a file |
 | `#diff(from, to)` | Returns merged entries between two versions |
 | `#since(version)` | Returns merged entries newer than a version |
+| `#entries_since(version, include_unreleased: false)` | Returns per-version `VersionEntry` records newer than a version (newest first) |
 | `#filter(category:)` | Return all entries from a specific category across versions |
 | `#search(query)` | Search entries by keyword or regex |
 | `#validate` | Check for common issues (duplicates, date order, empty versions) |

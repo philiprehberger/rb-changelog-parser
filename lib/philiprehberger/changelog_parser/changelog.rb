@@ -133,6 +133,23 @@ module Philiprehberger
         merge_categories(range)
       end
 
+      # Returns the released version entries newer than the given version, preserving per-release structure.
+      # Unlike {#since}, this keeps each version as a separate {VersionEntry} (newest first) so callers
+      # can iterate releases individually — useful for release notes that need a per-version section.
+      #
+      # @param version_string [String] version to start from (exclusive)
+      # @param include_unreleased [Boolean] include the Unreleased entry if present (default: false)
+      # @return [Array<VersionEntry>] released entries newer than version_string, newest first
+      # @raise [Error] if version is not found
+      def entries_since(version_string, include_unreleased: false)
+        idx = @entries.index { |e| e.version == version_string }
+        raise Philiprehberger::ChangelogParser::Error, "version not found: #{version_string}" unless idx
+
+        range = @entries[0...idx]
+        range = range.reject { |e| e.version == 'Unreleased' } unless include_unreleased
+        range
+      end
+
       # Search all entries for a keyword or pattern.
       #
       # @param query [String, Regexp] the search term

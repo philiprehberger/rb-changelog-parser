@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-05-20
+
+### Added
+- `Changelog#entries_since(version, include_unreleased: false)` — returns per-version `VersionEntry` records newer than the given version (newest first), preserving release structure unlike the existing `#since` which flattens categories
+- Card image reference in the README for registry-side rendering
+
 ## [0.7.0] - 2026-05-02
 
 ### Added
